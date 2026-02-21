@@ -1,0 +1,29 @@
+{
+  "kind": "2PLT_BOOT_LOADER_V1",
+  "purpose": "Bootstrap-only DOC_ID resolver manifest. This is the ONLY place where physical locators may appear.",
+  "resolver_mode": "DIRECT_MAP_ONLY",
+  "no_discovery": true,
+  "bootstrap_set": [
+    "2PLT_00_ENTRYPOINT",
+    "2PLT_00_DOCUMENT_GOVERNANCE",
+    "2PLT_05_DOC_ID_VOCAB"
+  ],
+  "doc_map": [
+    {
+      "doc_id": "2PLT_00_ENTRYPOINT",
+      "locator": { "type": "zip_path", "value": "docs/2PLT_00_ENTRYPOINT.md" }
+    },
+    {
+      "doc_id": "2PLT_00_DOCUMENT_GOVERNANCE",
+      "locator": { "type": "zip_path", "value": "docs/2PLT_00_DOCUMENT_GOVERNANCE.md" }
+    },
+    {
+      "doc_id": "2PLT_05_DOC_ID_VOCAB",
+      "locator": { "type": "zip_path", "value": "docs/2PLT_05_DOC_ID_VOCAB.md" }
+    }
+  ],
+  "notes": [
+    "LOCATORS ARE IMPLEMENTATION-SPECIFIC. Update locator values to match your artifact packaging.",
+    "After bootstrap, cross-document references MUST remain DOC_ID-only (see 2PLT_00_DOCUMENT_GOVERNANCE)."
+  ]
+}
