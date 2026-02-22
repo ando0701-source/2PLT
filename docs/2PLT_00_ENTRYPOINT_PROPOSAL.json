@@ -1,10 +1,12 @@
 {
-  "kind": "2PLT_BOOT_LOADER_TRIGGER_V1",
+  "kind": "2PLT_BOOT_LOADER_TRIGGER_V2",
   "trigger": "@@@@2PLT_JL_PROPOSAL@@@@",
-  "purpose": "BOOT LOADER: initial physical-path load order selected by trigger.",
+  "purpose": "Provide a deterministic physical load order for required documents.",
   "constraints": {
-    "no_discovery": true,
-    "paths_are_repo_relpath_posix": true
+    "paths_are_repo_relpath_posix": true,
+    "no_leading_slash": true,
+    "no_parent_segments": true,
+    "no_discovery": true
   },
   "load": {
     "mode": "physical_path_only",
@@ -13,25 +15,26 @@
       "docs/2PLT_00_DOCUMENT_GOVERNANCE.md",
       "docs/2PLT_00_ENTRYPOINT.md",
       "docs/2PLT_05_DOC_ID_VOCAB.md",
-      "docs/2PLT_10_STATE_MACHINE.md",
       "docs/2PLT_10_RESPONSIBILITY.md",
-      "docs/2PLT_20_MANAGER_BLOCK_GRAMMAR.md",
-      "docs/2PLT_20_TRIGGER_ID_VOCAB.md",
+      "docs/2PLT_10_STATE_MACHINE.md",
       "docs/2PLT_20_ARTIFACT_META_VOCAB.md",
-      "docs/2PLT_20_OWNER_ID_VOCAB.md",
-      "docs/2PLT_20_REQUEST_ID_VOCAB.md",
-      "docs/2PLT_20_REASON_CODE_VOCAB.md",
+      "docs/2PLT_20_MANAGER_BLOCK_GRAMMAR.md",
       "docs/2PLT_20_OUTPUT_TEMPLATE_VOCAB.md",
+      "docs/2PLT_20_OWNER_ID_VOCAB.md",
+      "docs/2PLT_20_REASON_CODE_VOCAB.md",
+      "docs/2PLT_20_REQUEST_ID_VOCAB.md",
+      "docs/2PLT_20_TRIGGER_ID_VOCAB.md",
       "docs/2PLT_30_TRIGGER_TERMINAL_MATRIX.md",
+      "docs/2PLT_40_AUDIT_CHECKS.md",
       "docs/2PLT_40_EXECUTION_POLICY.md",
       "docs/2PLT_40_OUTPUT_SCHEMA.md",
       "docs/2PLT_50_PROFILE_JUDGEMENT_LOG_PROPOSAL.md"
     ]
   },
   "notes": [
-    "BOOT stage does not decide terminal outcomes; REJECT may later fallback to UNRESOLVED.",
-    "Physical paths only. Load these files in order; do not discover additional files.",
-    "BOOT stage does not decide terminal outcomes; it only provides an initial document set for interpretation."
-  ],
-  "set_name": "MINSET_JL_PROPOSAL_V1"
+    "BOOT LOADER runs before vocabulary-based identification is available.",
+    "Load order is physical-path-only. No discovery (no enumeration) is permitted.",
+    "BOOT stage does not decide terminal outcomes.",
+    "This trigger corresponds to proposal flow."
+  ]
 }

@@ -11,10 +11,8 @@ without adding a new external terminal outcome.
 
 ## DocSet Declaration (Normative)
 
-- DOC_SET_ID: MINSET_JL_REJECT_V1
 - REQUIRES_DOC_ID:
   - 2PLT_00_MODEL
-  - 2PLT_00_ENTRYPOINT
   - 2PLT_10_STATE_MACHINE
   - 2PLT_10_RESPONSIBILITY
   - 2PLT_20_MANAGER_BLOCK_GRAMMAR
@@ -36,7 +34,6 @@ without adding a new external terminal outcome.
 
 The MANAGER payload MUST include:
 
-- `DOC_SET: MINSET_JL_REJECT_V1` (OPTIONAL label; if present SHOULD match `DOC_SET_ID`)
 
 If missing, WORKER MUST ABEND (REASON_CODE=`SCHEMA_MISSING_REQUIRED`) and include REQUIRED_TO_RESOLVE.
 
@@ -95,4 +92,3 @@ The record MUST include at least:
 - `reason_code`: `MANAGER_REJECTED_PROPOSAL` (or `REJECT_TARGET_NOT_FOUND` if target missing)
 
 A matching request-side record MAY be appended to `log_jl_unresolved_req.jsonl` (optional).
-

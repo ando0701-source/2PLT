@@ -44,8 +44,6 @@ If the exchange is an activated MANAGER block, mark these checks as N/A.
 |---|---|---|
 | A01 | MANAGER block MUST conform to the grammar and mandatory fields (OWNER_ID, LANE_ID, REQUEST_ID, trigger token, profile doc id, task section as required by profile). | `2PLT_20_MANAGER_BLOCK_GRAMMAR`, `2PLT_50_PROFILE_*` |
 | A02 | MANAGER block MUST use **canonical trigger tokens only**. (Aliases MAY be used by humans, but MUST NOT be emitted by MANAGER.) | `2PLT_00_DOCUMENT_GOVERNANCE`, `2PLT_20_TRIGGER_ID_VOCAB` |
-| A03 | For Phase1 fast path, MANAGER payload MUST include a trigger token and the corresponding BOOT LOADER JSON MUST be selectable and loadable. If `DOC_SET` is present, it MUST match the BOOT LOADER JSON `set_name`. | `2PLT_00_MODEL`, `2PLT_00_ENTRYPOINT` |
-| A04 | If `DOC_SET` is present in MANAGER payload, it SHOULD equal the profile-declared `DOC_SET_ID`. | `2PLT_00_DOCUMENT_GOVERNANCE`, `2PLT_50_PROFILE_*` |
 
 ### B. WORKER Response Envelope Checks
 
@@ -123,3 +121,9 @@ EVALUATION_REPORT
       FIX_DOC_ID: [<doc_id>, ...]
       SUMMARY: <one line>
       ACTION: <actionable instruction>
+
+## BOOT LOADER checks (Normative)
+
+- Verify that exactly one BOOT LOADER JSON is selected by trigger.
+- Verify that all physical paths listed in BOOT LOADER JSON load order exist.
+- Verify that activated processing does not consult documents outside the BOOT-loaded set.

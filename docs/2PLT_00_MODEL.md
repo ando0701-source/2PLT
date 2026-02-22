@@ -1,5 +1,11 @@
 # 2PLT Model (Authoritative)
 
+## BOOT LOADER (Normative)
+
+The document set to be consulted is determined at boot time by selecting a BOOT LOADER JSON using the trigger token.
+The selected BOOT LOADER JSON provides a physical-path-only load order, and activated processing MUST remain within the BOOT-loaded document set.
+
+
 ## 0. Normative Scope
 
 This document defines the authoritative 2PLT framework and its interpretation rules.
@@ -23,9 +29,6 @@ The following documents are **normative** and have binding force:
 - 2PLT_20_OWNER_ID_VOCAB
 - 2PLT_20_REQUEST_ID_VOCAB
 - 2PLT_20_MANAGER_BLOCK_GRAMMAR
-- 2PLT_00_ENTRYPOINT
-- 2PLT_20_OUTPUT_TEMPLATE_VOCAB
-
 ### Mapping Layer (fixed semantics mapping)
 - 2PLT_30_TRIGGER_TERMINAL_MATRIX
 
@@ -134,19 +137,18 @@ The mechanizable audit procedure for checking these invariants is defined by DOC
 
 To reduce variance and enable unit-testable behavior, activated processing MUST follow a **minimal doc loading policy**.
 
-#### DOC_SET (MANAGER payload key) — Optional label (Normative)
+#### document-set (MANAGER payload key)
 
-- `DOC_SET: <doc_set_id>` MAY appear in MANAGER payload as an optional label.
-- BOOT selection and initial document loading are determined by the trigger-selected BOOT LOADER JSON (see DOC_ID `2PLT_00_ENTRYPOINT`).
-- If `DOC_SET` is present, it SHOULD match the BOOT LOADER JSON `set_name` and the active profile `DOC_SET_ID`.
-  Mismatch is an audit failure and MUST be handled according to the active profile (default ABEND if not specified).
+In an activated MANAGER block, MANAGER MUST provide a payload line:
 
-#### Allowed DOC_SET IDs (v1) (Informative)
+`document-set` is treated as payload (see DOC_ID `2PLT_20_MANAGER_BLOCK_GRAMMAR`, Notes) and has normative semantics defined here.
 
-Allowed IDs are the `set_name` values used by the trigger-selected BOOT LOADER JSONs and the profiles' `DOC_SET_ID` values.
-#### Allowed DOC_SET IDs (v1)
+WORKER MUST:
 
-Allowed DOC_SET IDs and their bound DOC_ID lists are defined in DOC_ID `2PLT_00_ENTRYPOINT`.
+2. Consult ONLY documents in that set for normative interpretation.
+3. MUST NOT scan or read unrelated documents (including `etc/*`) during activated processing.
+
+If `document-set` is missing or invalid, WORKER MUST terminate with ABEND (REASON_CODE=`SCHEMA_MISSING_REQUIRED`) and include REQUIRED_TO_RESOLVE.
 
 WORKER MUST resolve `<doc_set_id>` using that vocabulary.
 

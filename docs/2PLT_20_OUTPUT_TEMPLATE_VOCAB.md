@@ -41,7 +41,6 @@ OUT_STATE: PROPOSAL
 ARTIFACT_CLASS: LOGICAL
 ARTIFACT_FORMAT: INLINE
 NOTES:
-- doc_set: <DOC_SET> (optional label; not used for BOOT discovery)
 - proposal_mode: DIFF_ONLY
 - proposal_input_zip: <proposal_input_zip>
 - proposal_target: <proposal_target>

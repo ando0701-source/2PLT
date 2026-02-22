@@ -1,7 +1,7 @@
 # 2PLT Document ID Vocabulary (Normative)
 
 This document defines canonical **doc_id** identifiers and their bound filenames for the 2PLT Framework.
-All normative documents MUST be referenced by **doc_id** (preferred) or canonical filename.
+All governance/spec documents MUST be referenced by **doc_id** (DOC_ID-only).
 
 ## Rules (Normative)
 
@@ -25,6 +25,14 @@ Allowed values (normative):
 - 50 : PROFILE
 
 
+## Authority (Controlled Vocabulary)
+
+The `authority` column indicates whether the document is normative for interpretation.
+
+Allowed values (normative):
+- NORMATIVE
+- DEPRECATED
+
 ## Vocabulary
 | doc_id | filename | layer | role | authority |
 |---|---|---:|---|---|
@@ -40,6 +48,7 @@ Allowed values (normative):
 | 2PLT_20_OWNER_ID_VOCAB | 2PLT_20_OWNER_ID_VOCAB.md | 20 | LEXICAL | NORMATIVE |
 | 2PLT_20_REQUEST_ID_VOCAB | 2PLT_20_REQUEST_ID_VOCAB.md | 20 | LEXICAL | NORMATIVE |
 | 2PLT_20_MANAGER_BLOCK_GRAMMAR | 2PLT_20_MANAGER_BLOCK_GRAMMAR.md | 20 | LEXICAL | NORMATIVE |
+| 2PLT_20_DOC_SET_VOCAB | 2PLT_20_DOC_SET_VOCAB.md | 20 | LEXICAL | DEPRECATED |
 | 2PLT_20_OUTPUT_TEMPLATE_VOCAB | 2PLT_20_OUTPUT_TEMPLATE_VOCAB.md | 20 | LEXICAL | NORMATIVE |
 | 2PLT_30_TRIGGER_TERMINAL_MATRIX | 2PLT_30_TRIGGER_TERMINAL_MATRIX.md | 30 | MAPPING | NORMATIVE |
 | 2PLT_40_EXECUTION_POLICY | 2PLT_40_EXECUTION_POLICY.md | 40 | POLICY | NORMATIVE |

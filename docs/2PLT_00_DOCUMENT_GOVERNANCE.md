@@ -11,9 +11,9 @@ This document defines document governance rules for 2PLT, including:
 ## 0.1 Definitions (Normative)
 - **DOC_ID**: Logical, stable identifier for a document (independent from physical storage).
 - **Cross-document reference**: Any reference from one document to another document.
-- **Physical locator**: A repository-root-relative path (or other implementation locator) used only for byte retrieval.
-- **DOC_VOCAB**: `docs/2PLT_05_DOC_ID_VOCAB.md`, the canonical DOC_ID vocabulary (doc_id ↔ filename binding).
-- **BOOT LOADER JSON**: one of the trigger-selected boot loader files (`docs/2PLT_00_ENTRYPOINT_{PROPOSAL,COMMIT,REJECT}.json`).
+- **BOOT LOADER JSON**: Trigger-selected bootstrap metadata that provides a deterministic physical load order.
+- **BOOT-loaded set**: The set of documents loaded by the selected BOOT LOADER JSON (physical-path-only).
+- **Document ID Vocabulary**: DOC_ID `2PLT_05_DOC_ID_VOCAB`, the canonical DOC_ID universe and filename bindings.
 
 ---
 
@@ -27,31 +27,26 @@ Rationale:
 - Stability under file renaming or restructuring.
 - Abstraction layer between logical identity (DOC_ID) and physical storage.
 
-### 1.1 Physical Resolution Model (Normative)
+### 1.1 BOOT LOADER physical resolution (Normative)
 
-This is NOT an exception to DOC_ID-only referencing. It is the mechanism that makes DOC_ID-only referencing workable.
+BOOT LOADER JSONs are bootstrap-only operational metadata that MAY contain physical paths.
 
-Purpose:
-- Implementations must retrieve document bytes deterministically.
-- Without a defined model, systems drift into document hunting (search/list/guess), which breaks mechanization.
+- Physical paths MUST NOT be used as cross-document references inside governance/spec documents.
+- BOOT LOADER JSONs are selected by trigger and provide a deterministic physical load order.
+- Activated processing MUST NOT perform discovery and MUST remain within the BOOT-loaded set.
 
-Authorities and allowed content:
-- DOC_VOCAB (`docs/2PLT_05_DOC_ID_VOCAB.md`) defines the DOC_ID universe and binds each DOC_ID to a canonical filename.
-- BOOT LOADER JSON (selected by trigger) defines the physical-path load order (repo-relative paths) that can be loaded **without DOC_ID resolution**.
+BOOT LOADER JSON files:
+- `docs/2PLT_00_ENTRYPOINT_PROPOSAL.json`
+- `docs/2PLT_00_ENTRYPOINT_COMMIT.json`
+- `docs/2PLT_00_ENTRYPOINT_REJECT.json`
 
-Rules:
-- Governance/spec documents MUST NOT use physical paths as cross-document references.
-- Physical paths MAY appear inside BOOT LOADER JSON files only (because they run before DOC_ID resolution is available).
-- During activated processing, the WORKER MUST NOT discover or load additional documents beyond the BOOT-loaded set.
-
-Update requirement:
-- If a governance/spec document is added/renamed/moved, update DOC_VOCAB bindings and the BOOT LOADER JSON load lists as needed.
 ## 2. Activated Processing: Strict Read Scope (Normative)
 
-During activated processing, the WORKER MUST interpret using **only** the document set that was loaded by the selected BOOT LOADER JSON.
+During activated processing, the WORKER MUST consult only:
+- the active profile document indicated by `PROFILE_DOC_ID`, and
+- the BOOT-loaded set provided by the selected BOOT LOADER JSON.
 
-- The WORKER MUST NOT consult any documents outside the BOOT-loaded set to decide “what to do next”.
-- Any attempt to discover or load additional documents is a governance violation.
+Reading any other documents to decide “what to do next” is prohibited and is a governance violation.
 
 ---
 

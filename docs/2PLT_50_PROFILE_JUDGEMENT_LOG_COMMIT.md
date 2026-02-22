@@ -8,10 +8,8 @@ Profile specialization for Judgement Log COMMIT flow.
 
 ## DocSet Declaration (Normative)
 
-- DOC_SET_ID: MINSET_JL_COMMIT_V1
 - REQUIRES_DOC_ID:
   - 2PLT_00_MODEL
-  - 2PLT_00_ENTRYPOINT
   - 2PLT_10_STATE_MACHINE
   - 2PLT_10_RESPONSIBILITY
   - 2PLT_20_MANAGER_BLOCK_GRAMMAR
@@ -37,7 +35,6 @@ Profile specialization for Judgement Log COMMIT flow.
 
 The MANAGER payload MUST include:
 
-- `DOC_SET: MINSET_JL_COMMIT_V1` (OPTIONAL label; if present SHOULD match `DOC_SET_ID`)
 
 If missing, WORKER MUST ABEND (REASON_CODE=`SCHEMA_MISSING_REQUIRED`) and include REQUIRED_TO_RESOLVE.
 
@@ -136,4 +133,3 @@ Minimum content requirements:
 
 If the lane-local unresolved journal files cannot be updated, or the required ZIP artifact cannot be produced,
 the turn MUST escalate to ABEND per DOC_ID `2PLT_40_EXECUTION_POLICY`.
-
