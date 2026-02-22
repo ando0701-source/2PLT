@@ -1,29 +1,36 @@
 {
-  "kind": "2PLT_BOOT_LOADER_V1",
-  "purpose": "Bootstrap-only DOC_ID resolver manifest. This is the ONLY place where physical locators may appear.",
-  "resolver_mode": "DIRECT_MAP_ONLY",
-  "no_discovery": true,
-  "bootstrap_set": [
-    "2PLT_00_ENTRYPOINT",
-    "2PLT_00_DOCUMENT_GOVERNANCE",
-    "2PLT_05_DOC_ID_VOCAB"
-  ],
-  "doc_map": [
-    {
-      "doc_id": "2PLT_00_ENTRYPOINT",
-      "locator": { "type": "zip_path", "value": "docs/2PLT_00_ENTRYPOINT.md" }
+  "kind": "2PLT_ENTRYPOINT_BOOT_LOADER_V1",
+  "purpose": "Physical bootstrap configuration. This file is allowed to use physical paths because it runs before DOC_ID resolution is available.",
+  "repo_root": "https://github.com/ando0701-source/2PLT",
+  "default_ref": "refs/heads/main",
+  "override_ref_param": "SOURCE_REF",
+  "paths": {
+    "doc_vocab_relpath": "docs/2PLT_05_DOC_ID_VOCAB.md",
+    "entrypoint_md_relpath": "docs/2PLT_00_ENTRYPOINT.md",
+    "docs_root_relpath": "docs/"
+  },
+  "resolution_rules": {
+    "doc_id_to_filename": "Use 2PLT_05_DOC_ID_VOCAB.md (DOC_ID Vocabulary) table: doc_id -> filename",
+    "filename_to_physical": "physical_relpath = docs_root_relpath + filename + default_doc_ext",
+    "default_doc_ext": ".md"
+  },
+  "modes": {
+    "inspect": {
+      "first_physical_relpath": "docs/2PLT_05_DOC_ID_VOCAB.md",
+      "goal": "Validate DOC_ID universe and reference integrity using DOC_VOCAB."
     },
-    {
-      "doc_id": "2PLT_00_DOCUMENT_GOVERNANCE",
-      "locator": { "type": "zip_path", "value": "docs/2PLT_00_DOCUMENT_GOVERNANCE.md" }
-    },
-    {
-      "doc_id": "2PLT_05_DOC_ID_VOCAB",
-      "locator": { "type": "zip_path", "value": "docs/2PLT_05_DOC_ID_VOCAB.md" }
+    "activated": {
+      "first_physical_relpath": "docs/2PLT_00_ENTRYPOINT.md",
+      "goal": "Deterministic activated processing without discovery; reading scope is constrained by ENTRYPOINT + profile + DOC_SET."
     }
-  ],
+  },
+  "constraints": {
+    "no_discovery_in_activated": true,
+    "allowed_physical_relpath_format": "POSIX repo-root-relative; no leading slash; no '..' segments"
+  },
   "notes": [
-    "LOCATORS ARE IMPLEMENTATION-SPECIFIC. Update locator values to match your artifact packaging.",
-    "After bootstrap, cross-document references MUST remain DOC_ID-only (see 2PLT_00_DOCUMENT_GOVERNANCE)."
+    "DOC_ID and filename have no naming relationship requirement (as defined in 2PLT_05_DOC_ID_VOCAB).",
+    "This BOOT LOADER does not define DOC_IDs. It only provides physical bootstrap paths and resolution rules.",
+    "Commit pinning should be supplied externally via override_ref_param, not hardcoded here."
   ]
 }

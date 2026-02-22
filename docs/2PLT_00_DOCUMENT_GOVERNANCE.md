@@ -1,17 +1,20 @@
 # 2PLT_00_DOCUMENT_GOVERNANCE (Normative)
 
-## Scope
+## 0. Scope
 This document defines document governance rules for 2PLT, including:
-- cross-document referencing rules,
-- bootstrap exception rules,
-- activated processing read-scope rules,
-- prohibited discovery behavior, and
-- violation handling defaults.
+- cross-document referencing rules (DOC_ID-only),
+- the physical resolution model (how bytes are retrieved without breaking DOC_ID-only referencing),
+- activated processing constraints (no document hunting),
+- document inspection (lint) boundary, and
+- default handling for governance violations.
 
-## Definitions (Normative)
-- **DOC_ID**: a logical, stable identifier for a document (independent from physical storage).
-- **Cross-document reference**: any reference from one document to another document.
-- **Physical locator**: an implementation-specific pointer to retrieve bytes (e.g., filename/path/object key).
+## 0.1 Definitions (Normative)
+- **DOC_ID**: Logical, stable identifier for a document (independent from physical storage).
+- **Cross-document reference**: Any reference from one document to another document.
+- **Physical locator**: A repository-root-relative path (or other implementation locator) used only for byte retrieval.
+- **PHYS_ID**: A stable identifier for physical resolution entries. (No naming relationship with DOC_ID is required.)
+- **DOC_VOCAB**: DOC_ID `2PLT_05_DOC_ID_VOCAB`, the canonical DOC_ID universe + DOC_ID→PHYS_ID mapping authority.
+- **BOOT LOADER**: `2PLT_00_ENTRYPOINT.json`, the canonical PHYS_ID→physical locator mapping authority.
 
 ---
 
@@ -19,35 +22,39 @@ This document defines document governance rules for 2PLT, including:
 
 All cross-document references MUST use DOC_ID form.
 
-Direct filename references (e.g., `*.md`) are strictly prohibited.
+Direct filename references (e.g., `*.md`) are strictly prohibited in governance/spec documents.
 
 Rationale:
-- Ensures stability under file renaming or restructuring.
-- Guarantees abstraction layer between logical identity and physical filename.
+- Stability under file renaming or restructuring.
+- Abstraction layer between logical identity (DOC_ID) and physical storage.
 
-### 1.1 Bootstrap Exception: BOOT LOADER Resolver Manifest (Normative)
+### 1.1 Physical Resolution Model (Normative)
 
-A bootstrap-only resolver manifest (**BOOT LOADER**) is permitted to contain physical locators.
+This is NOT an exception to DOC_ID-only referencing. It is the mechanism that makes DOC_ID-only referencing workable.
 
-Purpose:
-- Breaks the circular dependency at startup:
-  - Documents can only reference other documents by DOC_ID, but
-  - retrieving bytes by DOC_ID requires a resolver that must start without document hunting.
+Purpose (why this exists):
+- Implementations must retrieve bytes deterministically.
+- Without a defined model, systems drift into document hunting (search/list/guess), which breaks mechanization.
 
-Rules:
-- Physical locators (filenames/paths/object keys) MAY appear **only** inside the BOOT LOADER manifest.
-- No other governance/spec document may contain physical filename/path references.
-- The BOOT LOADER manifest is **operational metadata**, not a governance/spec document.
+Authorities and allowed content:
+- DOC_VOCAB (`2PLT_05_DOC_ID_VOCAB`) defines:
+  - the DOC_ID universe, and
+  - the mapping: **DOC_ID → PHYS_ID**
+  - DOC_VOCAB MUST NOT contain physical locators (filenames/paths).
+- BOOT LOADER (`2PLT_00_ENTRYPOINT.json`) defines:
+  - the mapping: **PHYS_ID → physical locator**
+  - BOOT LOADER MAY contain physical locators (repository-relative paths), and this is the ONLY place where such locators may appear.
 
-Bootstrap set requirement:
-- The BOOT LOADER MUST provide a direct mapping for at least:
-  - `2PLT_00_ENTRYPOINT`
-  - `2PLT_00_DOCUMENT_GOVERNANCE`
-  - `2PLT_05_DOC_ID_VOCAB`
+Bootstrap requirement:
+- An implementation MUST be able to load BOTH of the following deterministically from fixed locations, without discovery:
+  - DOC_ID `2PLT_05_DOC_ID_VOCAB` (DOC_VOCAB)
+  - BOOT LOADER `2PLT_00_ENTRYPOINT.json`
 
-After bootstrap:
-- Once the bootstrap set is resolvable, all further interpretation MUST follow the entry procedure defined by
-  DOC_ID `2PLT_00_ENTRYPOINT`, and MUST NOT use any discovery mechanism to decide what to read next.
+Update requirement:
+- Any addition/rename/move of a governance/spec document MUST be reflected by updating:
+  - DOC_VOCAB (DOC_ID universe + DOC_ID→PHYS_ID), and
+  - BOOT LOADER (PHYS_ID→physical locator).
+If not updated, the repository/artifact is invalid for both activated processing and inspection.
 
 ---
 
@@ -69,18 +76,20 @@ Reading any other documents to decide “what to do next” is prohibited and is
 ## 3. Prohibited Discovery (Normative)
 
 During activated processing, the WORKER MUST NOT:
-- enumerate an artifact/container to discover documents,
+- enumerate a container/repository to discover documents,
 - consult any inventory/index/table-of-contents/navigation document to decide what to read next,
 - attempt “document hunting” by searching or sampling optional docs.
 
-These behaviors are governance violations.
-
 ---
 
-## 4. Direct Document Writing Ban (Normative)
+## 4. Document Inspection (Lint) Boundary (Normative)
 
-During activated processing, the WORKER MUST NOT create, overwrite, or edit governance/specification documents
-unless they are explicitly listed as authorized patch targets by the MANAGER.
+Document inspection (lint) is NOT activated processing.
+
+- Inspection SHOULD read DOC_VOCAB first to establish the DOC_ID universe.
+- Inspection MAY enumerate repository files for integrity verification (missing/extra physical files),
+  if an inspection policy allows enumeration.
+- Inspection MUST still evaluate cross-document references as DOC_ID-only.
 
 ---
 

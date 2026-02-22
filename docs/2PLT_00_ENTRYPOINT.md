@@ -4,6 +4,19 @@
 Define the deterministic entry procedure for an activated WORKER to interpret a MANAGER block,
 without document hunting (no discovery; no “look around and decide”).
 
+## Resolver initialization (Normative)
+Before loading any documents by DOC_ID, the implementation MUST initialize a resolver as defined by
+DOC_ID `2PLT_00_DOCUMENT_GOVERNANCE`:
+
+1. Load BOOT LOADER (`2PLT_00_ENTRYPOINT.json`) from its fixed location.
+2. Load DOC_VOCAB (DOC_ID `2PLT_05_DOC_ID_VOCAB`) from its fixed location.
+3. Build a resolver using:
+   - DOC_VOCAB mapping: DOC_ID → PHYS_ID
+   - BOOT LOADER mapping: PHYS_ID → physical locator
+4. Enforce: governance/spec documents are loaded by DOC_ID only (no filename references in docs).
+
+This resolver initialization MUST NOT involve discovery.
+
 ## Activation boundary (Normative)
 This procedure applies only when a parsable `BEGIN_MANAGER` … `END_MANAGER` block exists.
 
@@ -23,33 +36,15 @@ When activated, the WORKER MUST follow this procedure in order:
    - the resolved DOC_ID set (if any),
    for all normative interpretation.
 
-## Bootstrap note (Normative)
-Loading a document by DOC_ID is performed via a resolver initialized by the BOOT LOADER manifest,
-as defined by DOC_ID `2PLT_00_DOCUMENT_GOVERNANCE`.
+## Inspection reading order (Informative)
+For document inspection (lint), the typical first document is DOC_ID `2PLT_05_DOC_ID_VOCAB`
+to establish the DOC_ID universe.
 
 ## Prohibited discovery (Normative)
 During activated processing, the WORKER MUST NOT:
-- enumerate the container/artifact to discover documents, or
+- enumerate the container/repository to discover documents, or
 - consult any navigation/inventory/index/table-of-contents document to decide what to read next.
 
-Any such behavior is a document governance violation and MUST be handled as defined by DOC_ID `2PLT_00_DOCUMENT_GOVERNANCE`.
-
-## Artifact channel invariants (Normative)
-Unless a profile explicitly overrides:
-- If `STATE=PROPOSAL` → `ARTIFACT=INLINE`
-- If `STATE=ABEND` → `ARTIFACT=INLINE`
-- If `STATE=COMMIT` → `ARTIFACT` references a produced artifact id (as defined by the active profile)
-- If `STATE=UNRESOLVED` → `ARTIFACT` references a produced artifact id (as defined by the active profile)
-
-Additionally:
-- A PROPOSAL MUST NOT apply any patch; it proposes a mechanically-applicable diff/patch inline.
-- A PROPOSAL MUST NOT produce any artifact file.
-
-## Output format ban (Normative)
-The WORKER response envelope MUST be plain text and MUST NOT include markdown links.
-
-## Absolute separation (Normative)
-- PROPOSAL is DIFF-only: never apply changes and never produce artifacts in PROPOSAL.
-- COMMIT applies the diff and produces artifacts.
+Any such behavior is a document governance violation.
 
 End of document.
