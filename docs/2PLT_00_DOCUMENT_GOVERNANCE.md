@@ -74,6 +74,8 @@ Document inspection (lint) is NOT activated processing.
 
 Any governance violation MUST be handled according to the active profile.
 
+BOOT-loaded set scope violation (consulting documents outside the BOOT-loaded set) MUST resolve to `STATE=UNRESOLVED` by default for consistency, unless a profile explicitly overrides.
+
 If the active profile does not define a dedicated handling rule, the default handling is:
 - `STATE=ABEND`
 - `ARTIFACT=INLINE`
