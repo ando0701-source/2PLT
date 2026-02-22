@@ -33,17 +33,18 @@ Rationale:
 This is NOT an exception to DOC_ID-only referencing. It is the mechanism that makes DOC_ID-only referencing workable.
 
 Purpose (why this exists):
-- Implementations must retrieve bytes deterministically.
+- Implementations must retrieve document bytes deterministically.
 - Without a defined model, systems drift into document hunting (search/list/guess), which breaks mechanization.
 
 Authorities and allowed content:
-- DOC_VOCAB (`2PLT_05_DOC_ID_VOCAB`) defines:
+- DOC_VOCAB (DOC_ID `2PLT_05_DOC_ID_VOCAB`) defines:
   - the DOC_ID universe, and
-  - the mapping: **DOC_ID → PHYS_ID**
-  - DOC_VOCAB MUST NOT contain physical locators (filenames/paths).
+  - the binding: **DOC_ID → filename**
+  - These filename bindings are **resolver metadata**, not cross-document references.
 - BOOT LOADER (`2PLT_00_ENTRYPOINT.json`) defines:
-  - the mapping: **PHYS_ID → physical locator**
-  - BOOT LOADER MAY contain physical locators (repository-relative paths), and this is the ONLY place where such locators may appear.
+  - fixed physical bootstrap paths (e.g., where to fetch DOC_VOCAB), and
+  - the deterministic rule to turn a bound filename into a physical relpath (e.g., `docs_root_relpath + filename`).
+  - BOOT LOADER MAY contain physical locators (repository-relative paths) because it runs before DOC_ID resolution is available.
 
 Bootstrap requirement:
 - An implementation MUST be able to load BOTH of the following deterministically from fixed locations, without discovery:
@@ -51,13 +52,8 @@ Bootstrap requirement:
   - BOOT LOADER `2PLT_00_ENTRYPOINT.json`
 
 Update requirement:
-- Any addition/rename/move of a governance/spec document MUST be reflected by updating:
-  - DOC_VOCAB (DOC_ID universe + DOC_ID→PHYS_ID), and
-  - BOOT LOADER (PHYS_ID→physical locator).
-If not updated, the repository/artifact is invalid for both activated processing and inspection.
-
----
-
+- Any addition/rename/move of a governance/spec document MUST be reflected by updating DOC_VOCAB filename bindings.
+  If DOC_VOCAB is not updated, the repository/artifact is invalid for both activated processing and inspection.
 ## 2. Activated Processing: Strict Read Scope (Normative)
 
 During activated processing, the WORKER MUST read only the following DOC_IDs:
