@@ -12,8 +12,9 @@ This document defines document governance rules for 2PLT, including:
 - **DOC_ID**: Logical, stable identifier for a document (independent from physical storage).
 - **Cross-document reference**: Any reference from one document to another document.
 - **Physical locator**: A repository-root-relative path (or other implementation locator) used only for byte retrieval.
-- **DOC_VOCAB**: DOC_ID `2PLT_05_DOC_ID_VOCAB`, the canonical DOC_ID universe + DOC_ID→filename binding authority.
-- **BOOT LOADER JSON**: physical bootstrap configuration file selected by TRIGGER (see DOC_ID `2PLT_00_ENTRYPOINT`).
+- **PHYS_ID**: A stable identifier for physical resolution entries. (No naming relationship with DOC_ID is required.)
+- **DOC_VOCAB**: DOC_ID `2PLT_05_DOC_ID_VOCAB`, the canonical DOC_ID universe + DOC_ID→PHYS_ID mapping authority.
+- **BOOT LOADER**: `2PLT_00_ENTRYPOINT.json`, the canonical PHYS_ID→physical locator mapping authority.
 
 ---
 
@@ -36,27 +37,27 @@ Purpose (why this exists):
 - Without a defined model, systems drift into document hunting (search/list/guess), which breaks mechanization.
 
 Authorities and allowed content:
-- DOC_VOCAB (DOC_ID `2PLT_05_DOC_ID_VOCAB`) defines:
+- DOC_VOCAB (`2PLT_05_DOC_ID_VOCAB`) defines:
   - the DOC_ID universe, and
-  - the binding: **DOC_ID → filename**
-- BOOT LOADER JSON (selected by TRIGGER; selection rule is defined in DOC_ID `2PLT_00_ENTRYPOINT`) defines:
-  - fixed physical bootstrap paths (e.g., DOC_VOCAB location), and
-  - the deterministic rule to turn a bound filename into a physical relpath:
-    - `physical_relpath = docs_root_relpath + filename`
-  - BOOT LOADER JSON may contain physical locators (repository-relative paths) because it runs before DOC_ID resolution is available.
-
-Additional constraint:
-- Physical file references used to select the BOOT LOADER JSON by TRIGGER are permitted only in DOC_ID `2PLT_00_ENTRYPOINT`.
-  No other governance/spec MD document may use physical filenames/paths as cross-document references.
+  - the mapping: **DOC_ID → PHYS_ID**
+  - DOC_VOCAB MUST NOT contain physical locators (filenames/paths).
+- BOOT LOADER (`2PLT_00_ENTRYPOINT.json`) defines:
+  - the mapping: **PHYS_ID → physical locator**
+  - BOOT LOADER MAY contain physical locators (repository-relative paths), and this is the ONLY place where such locators may appear.
 
 Bootstrap requirement:
 - An implementation MUST be able to load BOTH of the following deterministically from fixed locations, without discovery:
   - DOC_ID `2PLT_05_DOC_ID_VOCAB` (DOC_VOCAB)
-  - the selected BOOT LOADER JSON (physical file chosen by TRIGGER as defined in DOC_ID `2PLT_00_ENTRYPOINT`)
+  - BOOT LOADER `2PLT_00_ENTRYPOINT.json`
 
 Update requirement:
-- Any addition/rename/move of a governance/spec document MUST be reflected by updating DOC_VOCAB bindings.
-  If DOC_VOCAB is not updated, the repository/artifact is invalid for both activated processing and inspection.
+- Any addition/rename/move of a governance/spec document MUST be reflected by updating:
+  - DOC_VOCAB (DOC_ID universe + DOC_ID→PHYS_ID), and
+  - BOOT LOADER (PHYS_ID→physical locator).
+If not updated, the repository/artifact is invalid for both activated processing and inspection.
+
+---
+
 ## 2. Activated Processing: Strict Read Scope (Normative)
 
 During activated processing, the WORKER MUST read only the following DOC_IDs:

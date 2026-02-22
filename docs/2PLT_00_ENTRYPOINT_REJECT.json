@@ -1,27 +1,39 @@
 {
-  "kind": "2PLT_00_ENTRYPOINT_BOOT_LOADER",
-  "version": "1.0",
+  "kind": "2PLT_BOOT_LOADER_TRIGGER_V1",
   "trigger": "@@@@2PLT_JL_REJECT@@@@",
-  "source_ref": {
-    "default": "refs/heads/main",
-    "override_param": "SOURCE_REF",
-    "note": "Commit pinning should be provided externally via SOURCE_REF when needed."
+  "doc_set_name": "MINSET_JL_REJECT_V1",
+  "purpose": "BOOT LOADER: load required documents by physical paths before DOC_ID resolution is available.",
+  "constraints": {
+    "no_discovery": true,
+    "paths_are_repo_relpath_posix": true
   },
-  "paths": {
-    "doc_vocab_relpath": "docs/2PLT_05_DOC_ID_VOCAB.md",
-    "docs_root_relpath": "docs/"
-  },
-  "resolution_rules": {
-    "doc_id_to_filename": "Use 2PLT_05_DOC_ID_VOCAB Vocabulary table (doc_id -> filename).",
-    "filename_to_physical_relpath": "physical_relpath = docs_root_relpath + filename"
-  },
-  "doc_set_policy": {
-    "source_doc_id": "2PLT_00_ENTRYPOINT",
-    "note": "DOC_SET vocabulary and resolution rules are defined in 2PLT_00_ENTRYPOINT."
+  "load": {
+    "mode": "physical_path_only",
+    "order": [
+      "docs/2PLT_00_MODEL.md",
+      "docs/2PLT_00_DOCUMENT_GOVERNANCE.md",
+      "docs/2PLT_00_ENTRYPOINT.md",
+      "docs/2PLT_05_DOC_ID_VOCAB.md",
+      "docs/2PLT_10_STATE_MACHINE.md",
+      "docs/2PLT_10_RESPONSIBILITY.md",
+      "docs/2PLT_20_MANAGER_BLOCK_GRAMMAR.md",
+      "docs/2PLT_20_TRIGGER_ID_VOCAB.md",
+      "docs/2PLT_20_ARTIFACT_META_VOCAB.md",
+      "docs/2PLT_20_OWNER_ID_VOCAB.md",
+      "docs/2PLT_20_REQUEST_ID_VOCAB.md",
+      "docs/2PLT_20_REASON_CODE_VOCAB.md",
+      "docs/2PLT_20_DOC_SET_VOCAB.md",
+      "docs/2PLT_20_OUTPUT_TEMPLATE_VOCAB.md",
+      "docs/2PLT_30_TRIGGER_TERMINAL_MATRIX.md",
+      "docs/2PLT_40_EXECUTION_POLICY.md",
+      "docs/2PLT_40_OUTPUT_SCHEMA.md",
+      "docs/2PLT_50_PROFILE_JUDGEMENT_LOG_REJECT.md",
+      "docs/2PLT_50_PROFILE_JUDGEMENT_LOG_PROPOSAL.md"
+    ]
   },
   "notes": [
-    "This BOOT LOADER is selected by TRIGGER prior to DOC_ID resolution.",
-    "Physical paths appear only in BOOT LOADER JSON; governance/spec MD documents should use DOC_ID references.",
-    "REJECT handling falls back to UNRESOLVED terminal state per state machine/profile."
+    "This JSON contains no DOC_ID-based rules.",
+    "Loaded files correspond to the DOC_SET specified in 2PLT_00_ENTRYPOINT.md.",
+    "BOOT stage does not decide terminal outcomes; REJECT may later fallback to UNRESOLVED."
   ]
 }
