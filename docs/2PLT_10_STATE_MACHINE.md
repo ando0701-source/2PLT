@@ -1,4 +1,9 @@
 # 2PLT_STATE_MACHINE (Normative)
+## Note on BOOT LOADER (Informative)
+
+BOOT LOADER affects only document loading (physical load order).
+It does not change trigger semantics nor state transitions.
+
 
 ## 1. External Terminals
 
