@@ -23,6 +23,15 @@ After BOOT loading completes, the WORKER initializes logical identification usin
 - Treat **DOC_ID** as the only cross-document reference form inside governance/spec documents.
 - Any further document access MUST remain within the BOOT-loaded set (no additional file discovery).
 
+### BOOT-loaded set (Normative)
+The **BOOT-loaded set** is the cumulative set of documents loaded within the same `(OWNER_ID, LANE_ID)` lane, starting from the lane start
+(the first activated turn of that lane; typically `IN_STATE=NUL` with trigger `@@@@2PLT_JL_PROPOSAL@@@@`).
+
+For each subsequent turn in the same lane, the WORKER MAY consult any document in this cumulative BOOT-loaded set. However, the WORKER MUST add
+documents to the cumulative set ONLY by loading the physical-path list provided by the BOOT LOADER JSON selected for the current turn, and MUST NOT
+enumerate the repository or artifact to discover additional documents.
+
+
 ## Activation boundary (Normative)
 This procedure applies only when a parsable `BEGIN_MANAGER` … `END_MANAGER` block exists.
 

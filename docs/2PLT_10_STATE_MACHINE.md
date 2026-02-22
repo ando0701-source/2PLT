@@ -5,6 +5,18 @@ BOOT LOADER affects only document loading (physical load order).
 It does not change trigger semantics nor state transitions.
 
 
+## Quick lane flow (Informative)
+
+This is the typical 2PLT lane sequence (terminals are constrained by `2PLT_30_TRIGGER_TERMINAL_MATRIX`):
+
+- `IN_STATE=NUL` + `@@@@2PLT_JL_PROPOSAL@@@@` → terminal `PROPOSAL` (or `ABEND`)
+- `IN_STATE=PROPOSAL` + `@@@@2PLT_JL_COMMIT@@@@` → terminal `COMMIT` / `UNRESOLVED` (or `ABEND`)
+- `IN_STATE=PROPOSAL` + `@@@@2PLT_JL_REJECT@@@@` → terminal `UNRESOLVED` (or `ABEND`)
+
+After a `PROPOSAL` terminal, the lane remains open for the MANAGER follow-up (`@@@@2PLT_JL_COMMIT@@@@` or `@@@@2PLT_JL_REJECT@@@@`) within the same `(OWNER_ID, LANE_ID)`.
+
+The lane is considered closed after a terminal `COMMIT`, `UNRESOLVED`, or `ABEND`. A new lane starts with a new `LANE_ID` and `IN_STATE=NUL`.
+
 ## 1. External Terminals
 
 An **activated** 2PLT turn MUST end with exactly one external terminal outcome:
