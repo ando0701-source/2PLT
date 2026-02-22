@@ -150,7 +150,6 @@ WORKER MUST:
 
 If `document-set` is missing or invalid, WORKER MUST terminate with ABEND (REASON_CODE=`SCHEMA_MISSING_REQUIRED`) and include REQUIRED_TO_RESOLVE.
 
-WORKER MUST resolve `<doc_set_id>` using that vocabulary.
 
 Note: `2PLT_40_AUDIT_CHECKS` is normative for evaluation/self-check, but is NOT required for WORKER execution under the fast path.
 

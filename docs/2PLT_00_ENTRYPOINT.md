@@ -19,7 +19,7 @@ The WORKER MUST load each file in the listed order and MUST NOT enumerate the re
 
 After BOOT loading completes, the WORKER initializes logical identification using the Document ID Vocabulary:
 
-- Load `docs/2PLT_05_DOC_ID_VOCAB.md` (already included in BOOT load order).
+- Use the Document ID Vocabulary (DOC_ID `2PLT_05_DOC_ID_VOCAB`), which is already included in the BOOT load order.
 - Treat **DOC_ID** as the only cross-document reference form inside governance/spec documents.
 - Any further document access MUST remain within the BOOT-loaded set (no additional file discovery).
 
