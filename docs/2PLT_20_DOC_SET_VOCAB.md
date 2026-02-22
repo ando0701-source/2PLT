@@ -1,3 +1,9 @@
+# DEPRECATED
+
+This DOC_SET vocabulary has been moved into DOC_ID `2PLT_00_ENTRYPOINT` to avoid misrecognition.
+
+---
+
 # 2PLT_DOC_SET_VOCAB (Normative; Vocabulary)
 
 ## Purpose

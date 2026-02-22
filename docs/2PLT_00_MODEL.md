@@ -23,7 +23,7 @@ The following documents are **normative** and have binding force:
 - 2PLT_20_OWNER_ID_VOCAB
 - 2PLT_20_REQUEST_ID_VOCAB
 - 2PLT_20_MANAGER_BLOCK_GRAMMAR
-- 2PLT_20_DOC_SET_VOCAB
+- 2PLT_00_ENTRYPOINT
 - 2PLT_20_OUTPUT_TEMPLATE_VOCAB
 
 ### Mapping Layer (fixed semantics mapping)
@@ -144,7 +144,7 @@ In an activated MANAGER block, MANAGER MUST provide a payload line:
 
 WORKER MUST:
 
-1. Resolve `<doc_set_id>` to the allowed DOC_ID set defined in DOC_ID `2PLT_20_DOC_SET_VOCAB`.
+1. Resolve `<doc_set_id>` to the allowed DOC_ID set defined in DOC_ID `2PLT_00_ENTRYPOINT`.
 2. Consult ONLY documents in that set for normative interpretation.
 3. MUST NOT scan or read unrelated documents (including `etc/*`) during activated processing.
 
@@ -152,7 +152,7 @@ If `DOC_SET` is missing or invalid, WORKER MUST terminate with ABEND (REASON_COD
 
 #### Allowed DOC_SET IDs (v1)
 
-Allowed DOC_SET IDs and their bound DOC_ID lists are defined in DOC_ID `2PLT_20_DOC_SET_VOCAB`.
+Allowed DOC_SET IDs and their bound DOC_ID lists are defined in DOC_ID `2PLT_00_ENTRYPOINT`.
 
 WORKER MUST resolve `<doc_set_id>` using that vocabulary.
 

@@ -1,7 +1,7 @@
 # 2PLT Document ID Vocabulary (Normative)
 
 This document defines canonical **doc_id** identifiers and their bound filenames for the 2PLT Framework.
-All normative documents MUST be referenced by **doc_id** (DOC_ID-only). Filenames in this vocabulary are bindings for physical resolution and MUST NOT be used as cross-document references.
+All normative documents MUST be referenced by **doc_id** (preferred) or canonical filename.
 
 ## Rules (Normative)
 

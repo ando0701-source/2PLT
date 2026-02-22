@@ -44,7 +44,7 @@ If the exchange is an activated MANAGER block, mark these checks as N/A.
 |---|---|---|
 | A01 | MANAGER block MUST conform to the grammar and mandatory fields (OWNER_ID, LANE_ID, REQUEST_ID, trigger token, profile doc id, task section as required by profile). | `2PLT_20_MANAGER_BLOCK_GRAMMAR`, `2PLT_50_PROFILE_*` |
 | A02 | MANAGER block MUST use **canonical trigger tokens only**. (Aliases MAY be used by humans, but MUST NOT be emitted by MANAGER.) | `2PLT_00_DOCUMENT_GOVERNANCE`, `2PLT_20_TRIGGER_ID_VOCAB` |
-| A03 | For Phase1 fast path, MANAGER payload MUST include `DOC_SET: <doc_set_id>` and the value MUST exist in DOC_ID `2PLT_20_DOC_SET_VOCAB`. | `2PLT_00_MODEL`, `2PLT_20_DOC_SET_VOCAB` |
+| A03 | For Phase1 fast path, MANAGER payload MUST include `DOC_SET: <doc_set_id>` and the value MUST exist in DOC_ID `2PLT_00_ENTRYPOINT`. | `2PLT_00_MODEL`, `2PLT_00_ENTRYPOINT` |
 | A04 | `DOC_SET` in MANAGER payload SHOULD equal the profile-declared `DOC_SET_ID` (if present). | `2PLT_00_DOCUMENT_GOVERNANCE`, `2PLT_50_PROFILE_*` |
 
 ### B. WORKER Response Envelope Checks

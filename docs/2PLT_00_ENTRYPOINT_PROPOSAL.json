@@ -1,0 +1,26 @@
+{
+  "kind": "2PLT_00_ENTRYPOINT_BOOT_LOADER",
+  "version": "1.0",
+  "trigger": "@@@@2PLT_JL_PROPOSAL@@@@",
+  "source_ref": {
+    "default": "refs/heads/main",
+    "override_param": "SOURCE_REF",
+    "note": "Commit pinning should be provided externally via SOURCE_REF when needed."
+  },
+  "paths": {
+    "doc_vocab_relpath": "docs/2PLT_05_DOC_ID_VOCAB.md",
+    "docs_root_relpath": "docs/"
+  },
+  "resolution_rules": {
+    "doc_id_to_filename": "Use 2PLT_05_DOC_ID_VOCAB Vocabulary table (doc_id -> filename).",
+    "filename_to_physical_relpath": "physical_relpath = docs_root_relpath + filename"
+  },
+  "doc_set_policy": {
+    "source_doc_id": "2PLT_00_ENTRYPOINT",
+    "note": "DOC_SET vocabulary and resolution rules are defined in 2PLT_00_ENTRYPOINT."
+  },
+  "notes": [
+    "This BOOT LOADER is selected by TRIGGER prior to DOC_ID resolution.",
+    "Physical paths appear only in BOOT LOADER JSON; governance/spec MD documents should use DOC_ID references."
+  ]
+}
