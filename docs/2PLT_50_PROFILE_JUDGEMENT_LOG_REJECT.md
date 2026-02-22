@@ -36,7 +36,7 @@ without adding a new external terminal outcome.
 
 The MANAGER payload MUST include:
 
-- `DOC_SET: MINSET_JL_REJECT_V1` (see DOC_ID `2PLT_00_ENTRYPOINT`)
+- `DOC_SET: MINSET_JL_REJECT_V1` (OPTIONAL label; if present SHOULD match `DOC_SET_ID`)
 
 If missing, WORKER MUST ABEND (REASON_CODE=`SCHEMA_MISSING_REQUIRED`) and include REQUIRED_TO_RESOLVE.
 

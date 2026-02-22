@@ -12,9 +12,8 @@ This document defines document governance rules for 2PLT, including:
 - **DOC_ID**: Logical, stable identifier for a document (independent from physical storage).
 - **Cross-document reference**: Any reference from one document to another document.
 - **Physical locator**: A repository-root-relative path (or other implementation locator) used only for byte retrieval.
-- **PHYS_ID**: A stable identifier for physical resolution entries. (No naming relationship with DOC_ID is required.)
-- **DOC_VOCAB**: DOC_ID `2PLT_05_DOC_ID_VOCAB`, the canonical DOC_ID universe + DOC_ID→PHYS_ID mapping authority.
-- **BOOT LOADER**: `2PLT_00_ENTRYPOINT.json`, the canonical PHYS_ID→physical locator mapping authority.
+- **DOC_VOCAB**: `docs/2PLT_05_DOC_ID_VOCAB.md`, the canonical DOC_ID vocabulary (doc_id ↔ filename binding).
+- **BOOT LOADER JSON**: one of the trigger-selected boot loader files (`docs/2PLT_00_ENTRYPOINT_{PROPOSAL,COMMIT,REJECT}.json`).
 
 ---
 
@@ -32,44 +31,27 @@ Rationale:
 
 This is NOT an exception to DOC_ID-only referencing. It is the mechanism that makes DOC_ID-only referencing workable.
 
-Purpose (why this exists):
-- Implementations must retrieve bytes deterministically.
+Purpose:
+- Implementations must retrieve document bytes deterministically.
 - Without a defined model, systems drift into document hunting (search/list/guess), which breaks mechanization.
 
 Authorities and allowed content:
-- DOC_VOCAB (`2PLT_05_DOC_ID_VOCAB`) defines:
-  - the DOC_ID universe, and
-  - the mapping: **DOC_ID → PHYS_ID**
-  - DOC_VOCAB MUST NOT contain physical locators (filenames/paths).
-- BOOT LOADER (`2PLT_00_ENTRYPOINT.json`) defines:
-  - the mapping: **PHYS_ID → physical locator**
-  - BOOT LOADER MAY contain physical locators (repository-relative paths), and this is the ONLY place where such locators may appear.
+- DOC_VOCAB (`docs/2PLT_05_DOC_ID_VOCAB.md`) defines the DOC_ID universe and binds each DOC_ID to a canonical filename.
+- BOOT LOADER JSON (selected by trigger) defines the physical-path load order (repo-relative paths) that can be loaded **without DOC_ID resolution**.
 
-Bootstrap requirement:
-- An implementation MUST be able to load BOTH of the following deterministically from fixed locations, without discovery:
-  - DOC_ID `2PLT_05_DOC_ID_VOCAB` (DOC_VOCAB)
-  - BOOT LOADER `2PLT_00_ENTRYPOINT.json`
+Rules:
+- Governance/spec documents MUST NOT use physical paths as cross-document references.
+- Physical paths MAY appear inside BOOT LOADER JSON files only (because they run before DOC_ID resolution is available).
+- During activated processing, the WORKER MUST NOT discover or load additional documents beyond the BOOT-loaded set.
 
 Update requirement:
-- Any addition/rename/move of a governance/spec document MUST be reflected by updating:
-  - DOC_VOCAB (DOC_ID universe + DOC_ID→PHYS_ID), and
-  - BOOT LOADER (PHYS_ID→physical locator).
-If not updated, the repository/artifact is invalid for both activated processing and inspection.
-
----
-
+- If a governance/spec document is added/renamed/moved, update DOC_VOCAB bindings and the BOOT LOADER JSON load lists as needed.
 ## 2. Activated Processing: Strict Read Scope (Normative)
 
-During activated processing, the WORKER MUST read only the following DOC_IDs:
+During activated processing, the WORKER MUST interpret using **only** the document set that was loaded by the selected BOOT LOADER JSON.
 
-- `2PLT_00_ENTRYPOINT`
-- the active profile DOC_ID (`<PROFILE_DOC_ID>`)
-
-Additionally, only if a payload line `DOC_SET: <DOC_SET_NAME>` exists:
-- `2PLT_00_ENTRYPOINT`
-- the DOC_ID set resolved from `<DOC_SET_NAME>`
-
-Reading any other documents to decide “what to do next” is prohibited and is a governance violation.
+- The WORKER MUST NOT consult any documents outside the BOOT-loaded set to decide “what to do next”.
+- Any attempt to discover or load additional documents is a governance violation.
 
 ---
 

@@ -18,40 +18,23 @@ Define the deterministic entry procedure for an activated WORKER to interpret a 
 without document hunting (no discovery; no “look around and decide”).
 
 ## Resolver initialization (Normative)
-Before loading any documents by DOC_ID, the implementation MUST initialize a resolver as defined by
-DOC_ID `2PLT_00_DOCUMENT_GOVERNANCE`:
 
-1. Load BOOT LOADER (`2PLT_00_ENTRYPOINT.json`) from its fixed location.
-2. Load DOC_VOCAB (DOC_ID `2PLT_05_DOC_ID_VOCAB`) from its fixed location.
-3. Build a resolver using:
-   - DOC_VOCAB mapping: DOC_ID → PHYS_ID
-   - BOOT LOADER mapping: PHYS_ID → physical locator
-4. Enforce: governance/spec documents are loaded by DOC_ID only (no filename references in docs).
+BOOT stage does not require DOC_ID resolution.
 
-This resolver initialization MUST NOT involve discovery.
+1. Select exactly one BOOT LOADER JSON by the trigger token (see **BOOT LOADER Selection** above).
+2. Load each file listed in the selected BOOT LOADER JSON **by physical path**, in the given order.
+3. For interpretation after BOOT, use only the documents that were loaded in step (2). Do not discover or load additional documents.
 
 ## Activation boundary (Normative)
 This procedure applies only when a parsable `BEGIN_MANAGER` … `END_MANAGER` block exists.
 
 ## Deterministic entry procedure (Normative)
+
 When activated, the WORKER MUST follow this procedure in order:
 
-1. Read DOC_ID `2PLT_00_ENTRYPOINT` (this document).
-
-2. Read the profile document indicated by `PROFILE_DOC_ID:` (DOC_ID `<PROFILE_DOC_ID>`).
-
-3. If a payload line `DOC_SET: <DOC_SET_NAME>` exists:
-   - Read DOC_ID `2PLT_00_ENTRYPOINT`,
-   - Resolve `<DOC_SET_NAME>` to an allowed DOC_ID set.
-
-4. Consult ONLY:
-   - the active profile DOC_ID, and
-   - the resolved DOC_ID set (if any),
-   for all normative interpretation.
-
-## Inspection reading order (Informative)
-For document inspection (lint), the typical first document is DOC_ID `2PLT_05_DOC_ID_VOCAB`
-to establish the DOC_ID universe.
+1. BOOT: select the BOOT LOADER JSON by trigger and load the physical-path document set.
+2. Interpret the MANAGER block using only the already-loaded documents.
+3. Any attempt to consult documents outside the BOOT-loaded set is a governance violation.
 
 ## Prohibited discovery (Normative)
 During activated processing, the WORKER MUST NOT:

@@ -65,7 +65,7 @@ The MANAGER block MUST contain:
 1. A valid `OWNER_ID: <owner_id>` directive (see DOC_ID `2PLT_20_MANAGER_BLOCK_GRAMMAR`).
 2. A valid `LANE_ID: <lane_id>` directive (see DOC_ID `2PLT_20_MANAGER_BLOCK_GRAMMAR`).
 3. A trigger token that resolves to trigger_id `JL_PROPOSAL` (canonical only; see DOC_ID `2PLT_20_TRIGGER_ID_VOCAB`).
-4. A payload line `DOC_SET: MINSET_JL_PROPOSAL_V1` (see DOC_ID `2PLT_00_ENTRYPOINT`).
+4. `DOC_SET` in MANAGER payload is OPTIONAL. If present, it SHOULD equal `DOC_SET_ID` below.
 5. A payload line `PROPOSAL_MODE: DIFF_ONLY`.
 6. A payload line `OUTPUT_TEMPLATE_ID: JL_PROPOSAL_ENVELOPE_V1` (see DOC_ID `2PLT_20_OUTPUT_TEMPLATE_VOCAB`).
 7. A payload following the trigger token that provides a **commit-capable proposal specification**.

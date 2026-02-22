@@ -134,22 +134,16 @@ The mechanizable audit procedure for checking these invariants is defined by DOC
 
 To reduce variance and enable unit-testable behavior, activated processing MUST follow a **minimal doc loading policy**.
 
-#### DOC_SET (MANAGER payload key)
+#### DOC_SET (MANAGER payload key) — Optional label (Normative)
 
-In an activated MANAGER block, MANAGER MUST provide a payload line:
+- `DOC_SET: <doc_set_id>` MAY appear in MANAGER payload as an optional label.
+- BOOT selection and initial document loading are determined by the trigger-selected BOOT LOADER JSON (see DOC_ID `2PLT_00_ENTRYPOINT`).
+- If `DOC_SET` is present, it SHOULD match the BOOT LOADER JSON `set_name` and the active profile `DOC_SET_ID`.
+  Mismatch is an audit failure and MUST be handled according to the active profile (default ABEND if not specified).
 
-- `DOC_SET: <doc_set_id>`
+#### Allowed DOC_SET IDs (v1) (Informative)
 
-`DOC_SET` is treated as payload (see DOC_ID `2PLT_20_MANAGER_BLOCK_GRAMMAR`, Notes) and has normative semantics defined here.
-
-WORKER MUST:
-
-1. Resolve `<doc_set_id>` to the allowed DOC_ID set defined in DOC_ID `2PLT_00_ENTRYPOINT`.
-2. Consult ONLY documents in that set for normative interpretation.
-3. MUST NOT scan or read unrelated documents (including `etc/*`) during activated processing.
-
-If `DOC_SET` is missing or invalid, WORKER MUST terminate with ABEND (REASON_CODE=`SCHEMA_MISSING_REQUIRED`) and include REQUIRED_TO_RESOLVE.
-
+Allowed IDs are the `set_name` values used by the trigger-selected BOOT LOADER JSONs and the profiles' `DOC_SET_ID` values.
 #### Allowed DOC_SET IDs (v1)
 
 Allowed DOC_SET IDs and their bound DOC_ID lists are defined in DOC_ID `2PLT_00_ENTRYPOINT`.

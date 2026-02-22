@@ -157,7 +157,7 @@ Payload is passed to the active profile (if any) as the **input text** for schem
 
 ## 6. Notes
 
-- `DOC_SET: <doc_set_id>` is treated as payload, but has binding semantics defined in DOC_ID `2PLT_00_MODEL` and DOC_ID `2PLT_00_ENTRYPOINT`.
+- `DOC_SET: <doc_set_id>` MAY appear as an optional label. BOOT selection uses the trigger-selected BOOT LOADER JSON; `DOC_SET` is not used for document discovery.
 - Unknown `KEY: VALUE` lines are treated as payload (not directives), unless explicitly specified in this document.
 - The grammar is intentionally minimal; future extensions MUST be added here (Layer 20) and referenced by DOC_ID.
 
