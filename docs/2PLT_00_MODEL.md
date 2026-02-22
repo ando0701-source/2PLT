@@ -133,25 +133,23 @@ The following invariants define the framework's non-negotiable external behavior
 
 The mechanizable audit procedure for checking these invariants is defined by DOC_ID `2PLT_40_AUDIT_CHECKS`, using semantics from DOC_ID `2PLT_40_EXECUTION_POLICY` and DOC_ID `2PLT_40_OUTPUT_SCHEMA`.
 
-### Doc Loading Policy (Normative; Fast Path)
+### Doc Loading Policy (Normative; BOOT LOADER)
 
-To reduce variance and enable unit-testable behavior, activated processing MUST follow a **minimal doc loading policy**.
-
-#### document-set (MANAGER payload key)
-
-In an activated MANAGER block, MANAGER MUST provide a payload line:
-
-`document-set` is treated as payload (see DOC_ID `2PLT_20_MANAGER_BLOCK_GRAMMAR`, Notes) and has normative semantics defined here.
+To reduce variance and enable unit-testable behavior, activated processing MUST follow a deterministic **BOOT LOADER** procedure (see DOC_ID `2PLT_00_ENTRYPOINT` and DOC_ID `2PLT_00_DOCUMENT_GOVERNANCE`).
 
 WORKER MUST:
 
-2. Consult ONLY documents in that set for normative interpretation.
-3. MUST NOT scan or read unrelated documents (including `etc/*`) during activated processing.
+1. Select exactly one BOOT LOADER JSON by the trigger token.
+2. Load documents **only** from the BOOT LOADER `load.order` list, in the given order (the **BOOT-loaded set**).
+3. MUST NOT enumerate the repository / ZIP to discover additional documents (“no discovery”).
+4. MUST NOT consult documents outside the BOOT-loaded set during activated processing.
 
-If `document-set` is missing or invalid, WORKER MUST terminate with ABEND (REASON_CODE=`SCHEMA_MISSING_REQUIRED`) and include REQUIRED_TO_RESOLVE.
+MANAGER MUST:
 
+- NOT attempt to override document loading via ad-hoc payload keys.
+- Any payload attempt to override document loading (e.g., providing an explicit doc list) is **forbidden**. If detected, WORKER MUST ABEND with REASON_CODE `POLICY_VIOLATION`.
 
-Note: `2PLT_40_AUDIT_CHECKS` is normative for evaluation/self-check, but is NOT required for WORKER execution under the fast path.
+Rationale: the trigger-selected BOOT LOADER provides the only normative “doc set” for activated turns, without document hunting.
 
 ### Artifact Metadata (Normative)
 

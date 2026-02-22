@@ -24,3 +24,5 @@ English: [`README.md`](README.md)
 
 ## "REJECT" について
 リポジトリの説明文などに `REJECT` が出る場合がありますが、現状このリポジトリの規範（Normative）文書では終端状態は `UNRESOLVED` と `ABEND` を採用しています。`REJECT` を導入する場合は、必ず profile / doc-set により明示的に定義してください。
+## コーディングエージェント向け
+Codex 等のコーディングエージェントを使う場合は、必ず `AGENTS.md` の制約に従ってください（PROPOSAL は **書込禁止**、COMMIT のみ **書込許可**）。

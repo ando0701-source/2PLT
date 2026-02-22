@@ -5,6 +5,10 @@
 Start here: [`docs/2PLT_00_ENTRYPOINT.md`](docs/2PLT_00_ENTRYPOINT.md)  
 日本語: [`README.ja.md`](README.ja.md)
 
+## For coding agents
+If you use Codex or another coding agent in this repository, it MUST follow `AGENTS.md` (PROPOSAL is **NO WRITE**; COMMIT is **WRITE ALLOWED**).
+
+
 ## Goals
 - Predictable execution via explicit triggers
 - Auditable, deterministic changes through a two-phase process
