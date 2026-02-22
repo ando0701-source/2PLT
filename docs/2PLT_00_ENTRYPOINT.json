@@ -11,8 +11,8 @@
   },
   "resolution_rules": {
     "doc_id_to_filename": "Use 2PLT_05_DOC_ID_VOCAB.md (DOC_ID Vocabulary) table: doc_id -> filename",
-    "filename_to_physical": "physical_relpath = docs_root_relpath + filename + default_doc_ext",
-    "default_doc_ext": ".md"
+    "filename_to_physical": "physical_relpath = docs_root_relpath + filename",
+    "default_doc_ext": ""
   },
   "modes": {
     "inspect": {
@@ -31,6 +31,7 @@
   "notes": [
     "DOC_ID and filename have no naming relationship requirement (as defined in 2PLT_05_DOC_ID_VOCAB).",
     "This BOOT LOADER does not define DOC_IDs. It only provides physical bootstrap paths and resolution rules.",
-    "Commit pinning should be supplied externally via override_ref_param, not hardcoded here."
+    "Commit pinning should be supplied externally via override_ref_param, not hardcoded here.",
+    "VOCAB filename values are treated as complete filenames (including extension when present)."
   ]
 }

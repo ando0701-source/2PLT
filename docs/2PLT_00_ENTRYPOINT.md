@@ -11,8 +11,8 @@ DOC_ID `2PLT_00_DOCUMENT_GOVERNANCE`:
 1. Load BOOT LOADER (`2PLT_00_ENTRYPOINT.json`) from its fixed location.
 2. Load DOC_VOCAB (DOC_ID `2PLT_05_DOC_ID_VOCAB`) from its fixed location.
 3. Build a resolver using:
-   - DOC_VOCAB mapping: DOC_ID → PHYS_ID
-   - BOOT LOADER mapping: PHYS_ID → physical locator
+   - DOC_VOCAB mapping: DOC_ID → filename
+   - BOOT LOADER paths: docs_root_relpath + filename → physical_relpath
 4. Enforce: governance/spec documents are loaded by DOC_ID only (no filename references in docs).
 
 This resolver initialization MUST NOT involve discovery.
