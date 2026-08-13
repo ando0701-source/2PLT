@@ -1,0 +1,268 @@
+<!DOCTYPE html><html><head><meta charset='UTF-8'><title>blank</title></head><body style='font-family:monospace;'>
+<pre>
+# Revision: 2026-08-14 07:57 JST
+# Fix: prevent identifiers/keywords from being misclassified as DecimalFloatingPoint.
+
+function Get-JavaTokens {
+    &lt;#
+    .SYNOPSIS
+        Java ソースコードをトークン分割します（Java 21 の主要字句に対応）。
+
+    .PARAMETER Path
+        Java ソースファイルのパス。
+
+    .PARAMETER Code
+        直接 Java コード文字列を渡す場合。
+
+    .PARAMETER IncludeComments
+        コメントトークンも結果に含める場合に指定します。
+
+    .PARAMETER Detailed
+        トークン文字列ではなく、Value / Type / SubType / Offset / Length を持つ
+        オブジェクトとして返します。
+
+    .OUTPUTS
+        Detailed 未指定: [string[]]
+        Detailed 指定  : [PSCustomObject[]]
+
+    .NOTES
+        - Contextual Keyword は構文上の文脈がないと確定できないため、
+          ContextualKeywordCandidate として出力します。
+        - Unicode escape の事前変換や Java 構文解析までは行いません。
+        - type context における &gt; / &gt;&gt; / &gt;&gt;&gt; の構文依存分割は行いません。
+        - Java 21 preview の String Template は簡易認識です。
+    #&gt;
+
+    param(
+        [Parameter(Mandatory = $false, Position = 0)]
+        [string] $Path,
+
+        [Parameter(Mandatory = $false)]
+        [string] $Code,
+
+        [switch] $IncludeComments,
+
+        [switch] $Detailed
+    )
+
+    if (-not $PSBoundParameters.ContainsKey('Code')) {
+        if ([string]::IsNullOrWhiteSpace($Path)) {
+            throw 'Path または Code のいずれかを指定してください。'
+        }
+
+        if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+            throw "ファイルが存在しません: $Path"
+        }
+
+        $Code = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
+    }
+
+    # Java 21 Reserved Keywords
+    $reservedKeywords = @(
+        'abstract', 'assert', 'boolean', 'break', 'byte',
+        'case', 'catch', 'char', 'class', 'const',
+        'continue', 'default', 'do', 'double', 'else',
+        'enum', 'extends', 'final', 'finally', 'float',
+        'for', 'goto', 'if', 'implements', 'import',
+        'instanceof', 'int', 'interface', 'long', 'native',
+        'new', 'package', 'private', 'protected', 'public',
+        'return', 'short', 'static', 'strictfp', 'super',
+        'switch', 'synchronized', 'this', 'throw', 'throws',
+        'transient', 'try', 'void', 'volatile', 'while',
+        '_'
+    )
+
+    # Java 21 Contextual Keywords
+    # non-sealed は構文文脈が必要なため、単純な正規表現では常時1トークン扱いしない。
+    $contextualKeywords = @(
+        'exports', 'module', 'open', 'opens', 'permits',
+        'provides', 'record', 'requires', 'sealed', 'to',
+        'transitive', 'uses', 'var', 'when', 'with', 'yield'
+    )
+
+    # Java 21 の主要字句を longest-match 優先で抽出する。
+    # (?x) により空白と # コメントを正規表現中で無視する。
+    $javaTokenPattern = @'
+(?x)
+(
+      # --- コメント ---
+      //[^\r\n]*
+    | /\*[\s\S]*?\*/
+
+      # --- Java 21 preview String Template（簡易認識） ---
+    | [\p{L}\p{Nl}\p{Sc}\p{Pc}][\p{L}\p{Nl}\p{Sc}\p{Pc}\p{Nd}\p{Mc}\p{Mn}\p{Cf}]*\."""[\s\S]*?"""
+    | [\p{L}\p{Nl}\p{Sc}\p{Pc}][\p{L}\p{Nl}\p{Sc}\p{Pc}\p{Nd}\p{Mc}\p{Mn}\p{Cf}]*\."(?:[^"\\\r\n]|\\.)*"
+
+      # --- テキストブロック / 文字列 / 文字 ---
+    | """[\s\S]*?"""
+    | "(?:[^"\\\r\n]|\\.)*"
+    | '(?:[^'\\\r\n]|\\.)'
+
+      # --- 16進浮動小数点リテラル ---
+    | 0[xX](?:
+          [0-9a-fA-F](?:[0-9a-fA-F_]*[0-9a-fA-F])?\.?
+        | (?:[0-9a-fA-F](?:[0-9a-fA-F_]*[0-9a-fA-F])?)?\.[0-9a-fA-F](?:[0-9a-fA-F_]*[0-9a-fA-F])?
+      )[pP][+-]?[0-9](?:[0-9_]*[0-9])?[fFdD]?
+
+      # --- 10進浮動小数点リテラル ---
+    | (?:
+          [0-9](?:[0-9_]*[0-9])?\.(?:[0-9](?:[0-9_]*[0-9])?)?(?:[eE][+-]?[0-9](?:[0-9_]*[0-9])?)?[fFdD]?
+        | \.[0-9](?:[0-9_]*[0-9])?(?:[eE][+-]?[0-9](?:[0-9_]*[0-9])?)?[fFdD]?
+        | [0-9](?:[0-9_]*[0-9])?[eE][+-]?[0-9](?:[0-9_]*[0-9])?[fFdD]?
+        | [0-9](?:[0-9_]*[0-9])?[fFdD]
+      )
+
+      # --- 整数リテラル ---
+    | 0[xX][0-9a-fA-F](?:[0-9a-fA-F_]*[0-9a-fA-F])?[lL]?
+    | 0[bB][01](?:[01_]*[01])?[lL]?
+    | 0(?:_*[0-7])(?:[0-7_]*[0-7])?[lL]?
+    | (?:0|[1-9](?:[0-9_]*[0-9])?)[lL]?
+
+      # --- 識別子（Java identifier の主要 Unicode category を対象） ---
+    | [\p{L}\p{Nl}\p{Sc}\p{Pc}][\p{L}\p{Nl}\p{Sc}\p{Pc}\p{Nd}\p{Mc}\p{Mn}\p{Cf}]*
+
+      # --- 複合演算子（longest-match 優先） ---
+    | &gt;&gt;&gt;= | &gt;&gt;= | &lt;&lt;= | &gt;&gt;&gt; | &gt;&gt; | &lt;&lt;
+    | == | != | &lt;= | &gt;= | && | \|\| | \+\+ | --
+    | \+= | -= | \*= | /= | &= | \|= | \^= | %=
+    | -&gt;
+
+      # --- 複合区切り記号 ---
+    | \.\.\. | ::
+
+      # --- 単一演算子 ---
+    | [=&gt;&lt;!~?:+\-*/%&|^]
+
+      # --- 単一区切り記号 ---
+    | [(){}\[\];,.@]
+)
+'@
+
+    $matches = [regex]::Matches($Code, $javaTokenPattern)
+
+    $tokens = foreach ($m in $matches) {
+        $value = $m.Value
+        $type = $null
+        $subType = $null
+
+        # --- コメント ---
+        if ($value.StartsWith('//')) {
+            $type = 'Comment'
+            $subType = 'Line'
+        }
+        elseif ($value.StartsWith('/**')) {
+            $type = 'Comment'
+            $subType = 'Javadoc'
+        }
+        elseif ($value.StartsWith('/*')) {
+            $type = 'Comment'
+            $subType = 'Block'
+        }
+
+        # --- String Template（Java 21 preview / 簡易認識） ---
+        elseif ($value -match '^[\p{L}\p{Nl}\p{Sc}\p{Pc}][\p{L}\p{Nl}\p{Sc}\p{Pc}\p{Nd}\p{Mc}\p{Mn}\p{Cf}]*\."""') {
+            $type = 'StringTemplate'
+            $subType = 'TextBlockTemplate'
+        }
+        elseif ($value -match '^[\p{L}\p{Nl}\p{Sc}\p{Pc}][\p{L}\p{Nl}\p{Sc}\p{Pc}\p{Nd}\p{Mc}\p{Mn}\p{Cf}]*\."') {
+            $type = 'StringTemplate'
+            $subType = 'StringTemplate'
+        }
+
+        # --- リテラル ---
+        elseif ($value.StartsWith('"""')) {
+            $type = 'StringLiteral'
+            $subType = 'TextBlock'
+        }
+        elseif ($value.StartsWith('"')) {
+            $type = 'StringLiteral'
+            $subType = 'String'
+        }
+        elseif ($value.StartsWith("'")) {
+            $type = 'CharacterLiteral'
+            $subType = 'Character'
+        }
+        elseif ($value -ceq 'true' -or $value -ceq 'false') {
+            $type = 'BooleanLiteral'
+            $subType = 'Boolean'
+        }
+        elseif ($value -ceq 'null') {
+            $type = 'NullLiteral'
+            $subType = 'Null'
+        }
+
+        # --- キーワード / 識別子候補 ---
+        # 数値判定より先に行う。
+        # これにより else / double / float / field 等を、
+        # e/E を含む・f/F/d/D で終わるという理由だけで数値扱いしない。
+        elseif ($reservedKeywords -ccontains $value) {
+            $type = 'Keyword'
+            $subType = 'Reserved'
+        }
+        elseif ($contextualKeywords -ccontains $value) {
+            $type = 'ContextualKeywordCandidate'
+            $subType = 'Contextual'
+        }
+
+        # --- 数値 ---
+        # 部分一致ではなく、トークン全体が Java 数値リテラル形式に一致する場合だけ分類する。
+        elseif ($value -cmatch '^0[xX](?:[0-9a-fA-F](?:[0-9a-fA-F_]*[0-9a-fA-F])?\.?|(?:[0-9a-fA-F](?:[0-9a-fA-F_]*[0-9a-fA-F])?)?\.[0-9a-fA-F](?:[0-9a-fA-F_]*[0-9a-fA-F])?)[pP][+-]?[0-9](?:[0-9_]*[0-9])?[fFdD]?$') {
+            $type = 'NumericLiteral'
+            $subType = 'HexFloatingPoint'
+        }
+        elseif ($value -cmatch '^0[xX][0-9a-fA-F](?:[0-9a-fA-F_]*[0-9a-fA-F])?[lL]?$') {
+            $type = 'NumericLiteral'
+            $subType = 'HexInteger'
+        }
+        elseif ($value -cmatch '^0[bB][01](?:[01_]*[01])?[lL]?$') {
+            $type = 'NumericLiteral'
+            $subType = 'BinaryInteger'
+        }
+        elseif ($value -cmatch '^0(?:_*[0-7])(?:[0-7_]*[0-7])?[lL]?$') {
+            $type = 'NumericLiteral'
+            $subType = 'OctalInteger'
+        }
+        elseif ($value -cmatch '^(?:[0-9](?:[0-9_]*[0-9])?\.(?:[0-9](?:[0-9_]*[0-9])?)?(?:[eE][+-]?[0-9](?:[0-9_]*[0-9])?)?[fFdD]?|\.[0-9](?:[0-9_]*[0-9])?(?:[eE][+-]?[0-9](?:[0-9_]*[0-9])?)?[fFdD]?|[0-9](?:[0-9_]*[0-9])?[eE][+-]?[0-9](?:[0-9_]*[0-9])?[fFdD]?|[0-9](?:[0-9_]*[0-9])?[fFdD])$') {
+            $type = 'NumericLiteral'
+            $subType = 'DecimalFloatingPoint'
+        }
+        elseif ($value -cmatch '^(?:0|[1-9](?:[0-9_]*[0-9])?)[lL]?$') {
+            $type = 'NumericLiteral'
+            $subType = 'DecimalInteger'
+        }
+
+        # --- 演算子 ---
+        elseif ($value -match '^(?:&gt;&gt;&gt;=|&gt;&gt;=|&lt;&lt;=|&gt;&gt;&gt;|&gt;&gt;|&lt;&lt;|==|!=|&lt;=|&gt;=|&&|\|\||\+\+|--|\+=|-=|\*=|/=|&=|\|=|\^=|%=|-&gt;|[=&gt;&lt;!~?:+\-*/%&|^])$') {
+            $type = 'Operator'
+        }
+
+        # --- 区切り記号 ---
+        elseif ($value -match '^(?:\.\.\.|::|[(){}\[\];,.@])$') {
+            $type = 'Separator'
+        }
+        else {
+            $type = 'Identifier'
+        }
+
+        if (-not $IncludeComments -and $type -eq 'Comment') {
+            continue
+        }
+
+        if ($Detailed) {
+            [PSCustomObject]@{
+                Value   = $value
+                Type    = $type
+                SubType = $subType
+                Offset  = $m.Index
+                Length  = $m.Length
+            }
+        }
+        else {
+            $value
+        }
+    }
+
+    return $tokens
+}
+</pre>
+</body></html>
