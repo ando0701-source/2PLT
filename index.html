@@ -1,10 +1,11 @@
 <!DOCTYPE html><html><head><meta charset='UTF-8'><title>blank</title></head><body style='font-family:monospace;'>
 <pre>
-# Revision: 2026-08-14 07:57 JST
-# Fix: prevent identifiers/keywords from being misclassified as DecimalFloatingPoint.
+# Revision: 2026-08-14 15:32 JST
+# Fix: add Line / Column / LineOffset while keeping source-wide Offset.
+# Previous fix retained: prevent identifiers/keywords from being misclassified as DecimalFloatingPoint.
 
 function Get-JavaTokens {
-    &lt;#
+    <#
     .SYNOPSIS
         Java ソースコードをトークン分割します（Java 21 の主要字句に対応）。
 
@@ -18,8 +19,13 @@ function Get-JavaTokens {
         コメントトークンも結果に含める場合に指定します。
 
     .PARAMETER Detailed
-        トークン文字列ではなく、Value / Type / SubType / Offset / Length を持つ
-        オブジェクトとして返します。
+        トークン文字列ではなく、Value / Type / SubType / Line / Column /
+        LineOffset / Offset / Length を持つオブジェクトとして返します。
+
+        Line       : 1 始まりの行番号
+        Column     : 1 始まりの列番号
+        LineOffset : 0 始まりの行頭からの文字オフセット
+        Offset     : 0 始まりのソース全体先頭からの文字オフセット
 
     .OUTPUTS
         Detailed 未指定: [string[]]
@@ -29,9 +35,9 @@ function Get-JavaTokens {
         - Contextual Keyword は構文上の文脈がないと確定できないため、
           ContextualKeywordCandidate として出力します。
         - Unicode escape の事前変換や Java 構文解析までは行いません。
-        - type context における &gt; / &gt;&gt; / &gt;&gt;&gt; の構文依存分割は行いません。
+        - type context における > / >> / >>> の構文依存分割は行いません。
         - Java 21 preview の String Template は簡易認識です。
-    #&gt;
+    #>
 
     param(
         [Parameter(Mandatory = $false, Position = 0)]
@@ -122,16 +128,16 @@ function Get-JavaTokens {
     | [\p{L}\p{Nl}\p{Sc}\p{Pc}][\p{L}\p{Nl}\p{Sc}\p{Pc}\p{Nd}\p{Mc}\p{Mn}\p{Cf}]*
 
       # --- 複合演算子（longest-match 優先） ---
-    | &gt;&gt;&gt;= | &gt;&gt;= | &lt;&lt;= | &gt;&gt;&gt; | &gt;&gt; | &lt;&lt;
-    | == | != | &lt;= | &gt;= | && | \|\| | \+\+ | --
+    | >>>= | >>= | <<= | >>> | >> | <<
+    | == | != | <= | >= | && | \|\| | \+\+ | --
     | \+= | -= | \*= | /= | &= | \|= | \^= | %=
-    | -&gt;
+    | ->
 
       # --- 複合区切り記号 ---
     | \.\.\. | ::
 
       # --- 単一演算子 ---
-    | [=&gt;&lt;!~?:+\-*/%&|^]
+    | [=><!~?:+\-*/%&|^]
 
       # --- 単一区切り記号 ---
     | [(){}\[\];,.@]
@@ -139,6 +145,26 @@ function Get-JavaTokens {
 '@
 
     $matches = [regex]::Matches($Code, $javaTokenPattern)
+
+    # 各行の開始オフセットを事前計算する。
+    # CRLF / LF / CR のいずれにも対応する。
+    # トークンごとに先頭から改行数を数え直さず、BinarySearch で所属行を求める。
+    $lineStarts = [System.Collections.Generic.List[int]]::new()
+    $lineStarts.Add(0)
+
+    for ($i = 0; $i -lt $Code.Length; $i++) {
+        if ($Code[$i] -eq "`r") {
+            if (($i + 1) -lt $Code.Length -and $Code[$i + 1] -eq "`n") {
+                $i++
+            }
+            $lineStarts.Add($i + 1)
+        }
+        elseif ($Code[$i] -eq "`n") {
+            $lineStarts.Add($i + 1)
+        }
+    }
+
+    [int[]] $lineStartOffsets = $lineStarts.ToArray()
 
     $tokens = foreach ($m in $matches) {
         $value = $m.Value
@@ -232,7 +258,7 @@ function Get-JavaTokens {
         }
 
         # --- 演算子 ---
-        elseif ($value -match '^(?:&gt;&gt;&gt;=|&gt;&gt;=|&lt;&lt;=|&gt;&gt;&gt;|&gt;&gt;|&lt;&lt;|==|!=|&lt;=|&gt;=|&&|\|\||\+\+|--|\+=|-=|\*=|/=|&=|\|=|\^=|%=|-&gt;|[=&gt;&lt;!~?:+\-*/%&|^])$') {
+        elseif ($value -match '^(?:>>>=|>>=|<<=|>>>|>>|<<|==|!=|<=|>=|&&|\|\||\+\+|--|\+=|-=|\*=|/=|&=|\|=|\^=|%=|->|[=><!~?:+\-*/%&|^])$') {
             $type = 'Operator'
         }
 
@@ -249,12 +275,24 @@ function Get-JavaTokens {
         }
 
         if ($Detailed) {
+            # BinarySearch の戻り値が負の場合、挿入位置は -(result + 1)。
+            # その1つ前が、このトークンが属する行の開始位置となる。
+            $lineIndex = [Array]::BinarySearch($lineStartOffsets, [int] $m.Index)
+            if ($lineIndex -lt 0) {
+                $lineIndex = (-$lineIndex) - 2
+            }
+
+            $lineOffset = $m.Index - $lineStartOffsets[$lineIndex]
+
             [PSCustomObject]@{
-                Value   = $value
-                Type    = $type
-                SubType = $subType
-                Offset  = $m.Index
-                Length  = $m.Length
+                Value      = $value
+                Type       = $type
+                SubType    = $subType
+                Line       = $lineIndex + 1
+                Column     = $lineOffset + 1
+                LineOffset = $lineOffset
+                Offset     = $m.Index
+                Length     = $m.Length
             }
         }
         else {
